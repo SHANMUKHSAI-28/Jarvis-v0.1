@@ -1,0 +1,330 @@
+import pyttsx3
+import speech_recognition as sr
+import datetime
+import os
+import cv2
+import random
+from requests import get
+import wikipedia
+import webbrowser
+import pywhatkit as kit
+import smtplib
+import sys
+import time
+import pyjokes
+import requests
+import pyautogui
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email import encoders
+import os.path
+
+
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices');
+# print(voices[0].id)
+engine.setProperty('voices', voices[len(voices) - 1].id)
+
+#text to speech
+def speak(audio):
+    engine.say(audio)
+    print(audio)
+    engine.runAndWait()
+
+
+#To convert voice into text
+def  takecommand():
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("listening...")
+        r.pause_threshold = 1
+        audio = r.listen(source,timeout=5,phrase_time_limit=8)
+
+    try:
+        print("Recognizing...")
+        query = r.recognize_google(audio, language='en-in')
+        print(f"user said: {query}")
+
+    except Exception as e:
+        print("Say that again please...")
+        return "none"
+    return query
+
+#to wish
+def wish():
+    hour = int(datetime.datetime.now().hour)
+    tt = time.strftime("%I:%M %p")
+
+    if hour >= 0 and hour <= 12:
+        speak(f"good morning, its {tt}")
+    elif hour >= 12 and hour <= 18:
+        speak(f"good afternoon, its {tt}")
+    else:
+        speak(f"good evening, its {tt}")
+    speak("i am jarvis sir. please tell me how may i help you")
+
+
+    
+
+
+
+"""    
+#to send email
+def sendEmail(to,content):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.ehlo()
+    server.starttls()
+    server.login('YOUR EMAIL ADDRESS', 'YOUR PASSWORD')
+    server.sendmail('YOUR EMAIL ADDRESS', to, content)
+    server.close()
+ """
+ 
+ 
+
+#for news updates
+def news():
+    main_url = 'http://newsapi.org/v2/top-headlines?sources=techcrunch&apiKey=e4fb7db3e46345828220080c24905ce8'
+
+    main_page = requests.get(main_url).json()
+    # print(main_page)
+    articles = main_page["articles"]
+    # print(articles)
+    head = []
+    day=["first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth"]
+    for ar in articles:
+        head.append(ar["title"])
+    for i in range (len(day)):
+        # print(f"today's {day[i]} news is: ", head[i])
+        speak(f"today's {day[i]} news is: {head[i]}")
+        time.sleep(1)
+
+
+
+if __name__ == "__main__": #main program
+    wish()
+    while True:
+
+        query = takecommand().lower()
+
+        #logic building for tasks
+
+        if "open notepad" in query:
+            npath = "C:\\Windows\\system32\\notepad.exe"
+            os.startfile(npath)
+            
+        elif 'hi' in query or 'hello' in query:
+            speak('Hello sir, how may I help you?')
+        
+        elif "open adobe reader" in query:
+            apath = "C:\\Program Files (x86)\\Adobe\\Reader 11.0\\Reader\\AcroRd32.exe"
+            os.startfile(apath)
+
+        elif "open command prompt" in query:
+            os.system("start cmd")
+            speak("Opening command prompt sir")
+
+        elif "open camera" in query:
+            cap = cv2.VideoCapture(0)
+            while True:
+                ret, img = cap.read()
+                cv2.imshow('webcam', img)
+                k = cv2.waitKey(50)
+                if k==27:
+                    break;
+            cap.release()
+            cv2.destroyAllWindows()
+
+        elif "offline music" in query:
+            music_dir = "c:\\music"
+            songs = os.listdir(music_dir)
+            rd = random.choice(songs)
+            for song in songs:
+                if song.endswith('.mp3'):
+                    os.startfile(os.path.join(music_dir, song))
+
+
+
+        elif "ip address" in query:
+            ip = get('https://api.ipify.org').text
+            speak(f"your IP address is {ip}")
+
+        elif "wikipedia" in query:
+            speak("searching wikipedia....")
+            query = query.replace("wikipedia","")
+            results = wikipedia.summary(query, sentences=2)
+            speak("according to wikipedia")
+            speak(results)
+            print(results)
+
+        elif "open youtube" in query:
+            webbrowser.open("www.youtube.com")
+
+        elif"song in youtube" in query:
+            speak("Tell me the song name")
+            cm = takecommand().lower()
+            webbrowser.open(f"https://www.youtube.com/results?search_query={cm}")
+            time.sleep(10)
+            pyautogui.click(x=471, y=378)
+
+        elif"playlist 1" in query:
+            webbrowser.open("https://www.youtube.com/watch?v=Q7pBIRn-a1Y&list=RDGMEMCMFH2exzjBeE_zAHHJOdxg&start_radio=1&rv=oHcm6Lt6qWs&ab_channel=AdityaMusic")
+
+        elif "open facebook" in query:
+            webbrowser.open("www.facebook.com")
+
+        elif "open stackoverflow" in query:
+            webbrowser.open("www.stackoverflow.com")
+
+        elif "open google" in query:
+            speak("sir, what should i search on google")
+            cm = takecommand().lower()
+            webbrowser.open(f"{cm}")
+
+
+
+        elif "smashkarts" in query:
+            webbrowser.open("https://smashkarts.io/")
+
+        elif "smash" in query:
+            webbrowser.open("https://smashkarts.io/")
+
+        elif "whatsapp" in query:
+            pyautogui.keyDown("super")
+            time.sleep(1)
+            pyautogui.keyUp("super")
+            time.sleep(1)
+            pyautogui.typewrite("whats")
+            time.sleep(1)
+            pyautogui.keyDown("enter")
+            time.sleep(1)
+            pyautogui.keyUp("enter")
+
+            
+        elif "message" in query:
+            pyautogui.keyDown("super")
+            time.sleep(1)
+            pyautogui.keyUp("super")
+            time.sleep(1)
+            pyautogui.typewrite("whats")
+            time.sleep(1)
+            pyautogui.keyDown("enter")
+            time.sleep(1)
+            pyautogui.keyUp("enter")
+            time.sleep(0.5)
+            speak("Whome you want to send message")
+            waname= takecommand().lower()
+            pyautogui.click(x=228, y=145)
+            time.sleep(0.5)
+            pyautogui.typewrite(waname)
+            time.sleep(0.5)
+            pyautogui.click(x=302, y=236)
+            time.sleep(0.1)
+            pyautogui.click(x=734,y=995)
+            speak("enter the message you want to send")
+            whatsmessage= takecommand().lower()
+            time.sleep(0.5)
+            pyautogui.typewrite(whatsmessage)
+            time.sleep(1)
+            pyautogui.keyDown("enter")
+            pyautogui.keyUp("enter")
+            speak("message sent....")
+#snap bot
+        elif "snap" in query:
+            pyautogui.keyDown("super")
+            pyautogui.keyUp("super")
+            time.sleep(0.5)
+            pyautogui.typewrite("bluestacks 5")
+            time.sleep(0.5)
+            pyautogui.keyDown("enter")
+            pyautogui.keyUp("enter")
+            time.sleep(20)
+            #to open snap app
+            pyautogui.click(x=1729, y=254)
+            time.sleep(10)
+            #to click pictures
+            pyautogui.click(x=1121, y=827)
+            time.sleep(5)
+            #to select camera roll
+            pyautogui.click(x=1130, y=236)
+            time.sleep(0.5)
+            #to select image
+            pyautogui.click(x=1032, y=356)
+            time.sleep(0.5)
+            #to select send to option
+            pyautogui.click(x=1298, y=884)
+            time.sleep(3)
+            #to select group
+            pyautogui.click(x=990, y=198)
+            time.sleep(2)
+            #to press select all
+            pyautogui.click(x=1346, y=235)
+            time.sleep(0.5)
+            #to press send button
+            pyautogui.click(x=1381, y=882)
+            time.sleep(5)
+            #to click on close button
+            pyautogui.click(x=1381, y=102)
+            time.sleep(1)
+            #to confirm closing
+            pyautogui.click(x=1335, y=550)
+
+
+
+#to set timer           
+        elif 'timer' in query or 'stopwatch' in query:
+            speak("For how many minutes?")
+            timing = takecommand()
+            timing =timing.replace('minutes', '')
+            timing = timing.replace('minute', '')
+            timing = timing.replace('for', '')
+            timing = float(timing)
+            timing = timing * 60
+            speak(f'I will remind you in {timing} seconds')
+
+            time.sleep(timing)
+            speak('Your time has been finished sir')
+              
+#to close any application
+        elif "close notepad" in query:
+            speak("okay sir, closing notepad")
+            os.system("taskkill /f /im notepad.exe")
+
+#to set an alarm
+        elif "set alarm" in query:
+            nn = int(datetime.datetime.now().hour)
+            if nn==22: 
+                music_dir = 'E:\\music'
+                songs = os.listdir(music_dir)
+                os.startfile(os.path.join(music_dir, songs[0]))
+#to find a joke
+        elif "tell me a joke" in query:
+            joke = pyjokes.get_joke()
+            speak(joke)
+
+# to shut down the system
+        elif "shutdown" in query:
+            os.system("shutdown /s /t 5")
+
+#to restart the system
+        elif "restart the system" in query:
+            os.system("shutdown /r /t 5")
+
+#to sleep the system
+        elif "sleep the system" in query:
+            os.system("rundll32.exe powrprof.dll,SetSuspendState 0,1,0")
+
+#to switch the window        
+        elif 'switch the window' in query:
+            pyautogui.keyDown("alt")
+            pyautogui.press("tab")
+            time.sleep(1)
+            pyautogui.keyUp("alt")
+                   
+
+        elif "tell me news" in query:
+            speak("please wait sir, feteching the latest news")
+            news()
+
+
+        #speak("sir, do you have any other work")
